@@ -35,7 +35,6 @@ class RunMatsimFromExamplesUtils{
 		// ---
 
 		Scenario scenario = ScenarioUtils.loadScenario( config );
-        scenario.getPopulation().ad
 		// ---
 
 		Controler controler = new Controler( scenario );
