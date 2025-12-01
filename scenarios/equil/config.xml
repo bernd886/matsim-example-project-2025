@@ -16,7 +16,7 @@
 	</module>
 
 	<module name="controller">
-		<param name="outputDirectory" value="./output" />
+		<param name="outputDirectory" value="./scenarios/equil/output" />
 		<param name="lastIteration" value="10" />
 	</module>
 
@@ -34,7 +34,7 @@
 			<param name="closingTime"     value="18:00:00" />
 		</parameterset>
 	</module>
-	
+
 	<module name="replanning">
 		<parameterset type="strategysettings" >
 			<param name="strategyName" value="BestScore" />

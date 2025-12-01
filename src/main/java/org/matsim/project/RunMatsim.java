@@ -42,19 +42,20 @@ public class RunMatsim{
 
 		config.controller().setOverwriteFileSetting( OverwriteFileSetting.deleteDirectoryIfExists );
 
-		// possibly modify config here
+		// possibly modify config here (first/ last iteration, learning functions, etc.)
 
 		// ---
-		
+
 		Scenario scenario = ScenarioUtils.loadScenario(config) ;
 
-		// possibly modify scenario here
+		// possibly modify scenario here (infrastructure: links, persons, plans)
 		
 		// ---
 		
 		Controler controler = new Controler( scenario ) ;
 		
-		// possibly modify controler here
+		// possibly modify controler here (how to controll the program)
+        // all possible modifications subsumed under the most important ones: addOverridingModule, addOverridingQSimModule
 
 //		controler.addOverridingModule( new OTFVisLiveModule() ) ;
 
