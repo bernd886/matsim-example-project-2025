@@ -23,7 +23,6 @@ class RunMatsimFromExamplesUtils{
 //		URL context = org.matsim.examples.ExamplesUtils.getTestScenarioURL( "equil" );
         URL context = org.matsim.examples.ExamplesUtils.getTestScenarioURL( "pt-simple" );
 //        config-file name
-//		URL url = IOUtils.extendUrl( context, "config.xml" );
         URL url = IOUtils.extendUrl( context, "config.xml" );
 
 
