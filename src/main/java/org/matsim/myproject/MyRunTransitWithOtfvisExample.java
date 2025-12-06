@@ -28,6 +28,7 @@ import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.groups.QSimConfigGroup;
 import org.matsim.core.config.groups.QSimConfigGroup.SnapshotStyle;
 import org.matsim.core.config.groups.ReplanningConfigGroup;
+import org.matsim.core.config.groups.TravelTimeCalculatorConfigGroup;
 import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
 import org.matsim.core.controler.OutputDirectoryHierarchy.OverwriteFileSetting;
@@ -66,26 +67,29 @@ public class MyRunTransitWithOtfvisExample {
 
         {
             // replanning: adding new selector strategy, which is non-innovative (from lecture 4 (2022))
+            // for illustrative example full controll with BestScore + Random can be useful
+            // BestScore alone gets stuck with suboptimal plans
+            // ExpBeta selectors balances exploitation + exploration; ChangeExpBeta is faster + robust
             {
                 ReplanningConfigGroup.StrategySettings stratSets = new ReplanningConfigGroup.StrategySettings();
-                stratSets.setWeight( 1. );
+                stratSets.setWeight( .7 );
                 stratSets.setStrategyName( DefaultPlanStrategiesModule.DefaultSelector.ChangeExpBeta );
                 config.replanning().addStrategySettings( stratSets );
             }
             // replanning: adding new mutator strategy (innovative)
-            // "changing the location (do shopping somewhere else) is a contrib"
+            // "changing the location (go shopping somewhere else) is a contrib"
             {
                 ReplanningConfigGroup.StrategySettings stratSets = new ReplanningConfigGroup.StrategySettings();
-                stratSets.setWeight( 1. );
+                stratSets.setWeight( .2 );
                 stratSets.setStrategyName( DefaultPlanStrategiesModule.DefaultStrategy.ChangeSingleTripMode );
                 // "ChangeSingleTripMode works better than ChangeTripMode"
                 config.replanning().addStrategySettings( stratSets );
             }
             {
                 ReplanningConfigGroup.StrategySettings stratSets = new ReplanningConfigGroup.StrategySettings();
-                stratSets.setWeight( 1. );
+                stratSets.setWeight( .1 );
                 stratSets.setStrategyName( DefaultPlanStrategiesModule.DefaultStrategy.SubtourModeChoice );
-                // with material dependencies in leg chains (car, pt)
+                // SubtourModeChoice ensure mass conservation for relevant modes (car, bike)
                 config.replanning().addStrategySettings( stratSets );
             }
             // "the mode choice modules need to know which modes are in the system
@@ -93,13 +97,25 @@ public class MyRunTransitWithOtfvisExample {
             // replanning: must be able to say: use this mode
             // router: must be able to produce a route for this mode
             // simulation: must be able to process it
-            // scoring: must be able to give it a score
+            // scoring: must be able to give it a score"
+
+            // configuring strategies
+            // modes for modeChoice: declaring available modes; preconfigured string constants
             String[] modes = { TransportMode.car, TransportMode.bike, "eScooter" } ;
-            // preconfigured string constants
             config.changeMode().setModes( modes );
             String[] submodes ;
             config.subtourModeChoice().setModes( submodes );
+            // plan memory size: default individual; decrease for less RAM usage; larger = better
+            config.replanning().setMaxAgentPlanMemorySize( 5 );
+            // in default plan with the lowest score is removed, if number of plans is too large
+            // but genetic algorithms do not maintaining diversity; "we end up with n copies of best plan"
+            config.replanning().setPlanSelectorForRemoval( DefaultPlanStrategiesModule.DefaultPlansRemover.WorstPlanSelector.toString());
+            // innovation switch-off: to reduce exploration at the end of sim
+            config.replanning().setFractionOfIterationsToDisableInnovation( .8 );
         }
+        // time intervall size for which link travel times are calculated (default)
+        config.travelTimeCalculator().setTraveltimeBinSize( 900 );
+        // for sims with small scale changes (evacuation), switching calculator to HashMap useful (where?)
 
         //config.transit().setUseTransit( true ) ;
 
