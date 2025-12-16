@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+// MATSim Public Tutorial 14.x (2022), Seminar 4
 // when linkLeaveEvents on linkOfInterest
 // adding time to array and increasing count in timeBin of Map
 // offering return

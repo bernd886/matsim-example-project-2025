@@ -10,6 +10,7 @@ import org.matsim.api.core.v01.population.Person;
 import java.util.HashMap;
 import java.util.Map;
 
+// MATSim Public Tutorial 14.x (2022), Seminar 4
 // handling departureEvent by putting time and personID in Map
 // handling arrivalEvent by reading arrivalTime for personID
 // subtracting corresponding departureTime
