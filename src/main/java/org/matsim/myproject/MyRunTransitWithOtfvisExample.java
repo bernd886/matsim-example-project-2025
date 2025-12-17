@@ -103,7 +103,7 @@ public class MyRunTransitWithOtfvisExample {
             // modes for modeChoice: declaring available modes; preconfigured string constants
             String[] modes = { TransportMode.car, TransportMode.bike, "eScooter" } ;
             config.changeMode().setModes( modes );
-            String[] submodes ;
+            String[] submodes = {};
             config.subtourModeChoice().setModes( submodes );
             // plan memory size: default individual; decrease for less RAM usage; larger = better
             config.replanning().setMaxAgentPlanMemorySize( 5 );
