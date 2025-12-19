@@ -1,7 +1,5 @@
 package org.matsim.myproject.analysis.seminar04.bonus;
 
-import org.matsim.analysis.BeelineDistanceHandler;
-import org.matsim.analysis.TravelledDistanceHandler;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.population.Person;
 import org.matsim.core.events.EventsUtils;
@@ -21,7 +19,7 @@ public class RunAnalysis {
     public static void main(String[] args) {
 
         // load the network
-        var network = NetworkUtils.readNetwork("C:\\Users\\Janekdererste\\Downloads\\berlin-v5.4-1pct.output_network.xml.gz");
+        var network = NetworkUtils.readNetwork("E:\\files-sd\\Uni\\Master\\Matsim\\MATSim Public Tutorial 14.x (2022)\\05\\berlin-v5.5.3-1pct.output_network.xml.gz");
 
         // create event handlers which you need for your analysis
         var beelineHandler = new BeelineDistanceHandler(network);
@@ -35,7 +33,7 @@ public class RunAnalysis {
         manager.addHandler(travelledDistanceHandler);
 
         // actually read the events file. This step will take some time.
-        EventsUtils.readEvents(manager, "C:\\Users\\Janekdererste\\Downloads\\berlin-v5.4-1pct.output_events.xml.gz");
+        EventsUtils.readEvents(manager, "E:\\files-sd\\Uni\\Master\\Matsim\\MATSim Public Tutorial 14.x (2022)\\05\\berlin-v5.5.3-1pct.output_events.xml.gz");
 
         //Now, we have parsed all events and our event handlers have collected data. We can run different analysis now
         // Let's start with the beeline handler. Get the collected data first
@@ -169,4 +167,5 @@ public class RunAnalysis {
         if (distance < 20000) return "< 20000: ";
         return "> 20000: ";
     }
+
 }

@@ -49,9 +49,9 @@ public class CountActivitiesBetweenDistrictsByHandler {
 
         EventsUtils.readEvents( manager, eventsFileUrl.toString() );
 
-        var linkLeaveTimesArray = linkHandler.getLinkLeaveTimesArray();
+        //var linkLeaveTimesArray = linkHandler.getLinkLeaveTimesArray();
 
-        var linkLeaveTimesMap = linkHandler.getLinkLeaveTimesMap();
+        //var linkLeaveTimesMap = linkHandler.getLinkLeaveTimesMap();
 
         // writing out array
 //        try ( var writer = Files.newBufferedWriter( Paths.get(outFile)); var printer = CSVFormat.DEFAULT.withDelimiter(';').withHeader("Time").print(writer)) {
@@ -63,6 +63,8 @@ public class CountActivitiesBetweenDistrictsByHandler {
 //            e.printStackTrace();
 //        }
 
+
+        /*
         // writing out map
         try ( var writer = Files.newBufferedWriter( Paths.get(outFile)); var printer = CSVFormat.DEFAULT.withDelimiter(';').withHeader("Hour", "Value").print(writer)) {
             for (var volume : linkLeaveTimesMap.entrySet()) {
@@ -72,5 +74,6 @@ public class CountActivitiesBetweenDistrictsByHandler {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        */
     }
 }
