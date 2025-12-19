@@ -1,10 +1,9 @@
-package org.matsim.myproject.analysis;
+package org.matsim.myproject.analysis.seminar05;
 
 import org.apache.commons.csv.CSVFormat;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
 import org.matsim.api.core.v01.Coord;
-import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.population.Person;
 import org.matsim.core.population.PopulationUtils;
 import org.matsim.core.router.TripStructureUtils;
@@ -14,11 +13,9 @@ import org.matsim.core.utils.gis.GeoFileReader;
 import org.matsim.core.utils.io.IOUtils;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 // MATSim Public Tutorial 14.x (2022), Seminar 5
@@ -127,16 +124,6 @@ public class CountActivitiesBetweenDistricts {
         } catch ( IOException e) {
             e.printStackTrace();
         }
-
-//        try ( var writer = Files.newBufferedWriter( Path.of( "C:\\Users\\lenovo\\Desktop\\05\\FHain2Mitte.csv" )); var printer = CSVFormat.DEFAULT.withDelimiter(';').withHeader("Mode", "Distance").print(writer)) {
-//            for (var volume : MapOfMainLegsFHain2Mitte.entrySet()) {
-//                printer.printRecord(volume.getKey(), volume.getValue());
-//                printer.println();
-//            }
-//        } catch ( IOException e) {
-//            e.printStackTrace();
-//        }
-
 
         System.out.println( "Number of activities from" ) ;
         System.out.println( "FHain to Mitte: " + numberOfTripsBetweenFHainMitte ) ;

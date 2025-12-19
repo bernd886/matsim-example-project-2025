@@ -1,4 +1,4 @@
-package org.matsim.myproject.analysis;
+package org.matsim.myproject.analysis.seminar04;
 
 import org.apache.commons.csv.CSVFormat;
 import org.matsim.core.events.EventsUtils;
@@ -20,8 +20,6 @@ public class SimpleAnalysis {
 
 
     public static void main(String[] args) throws IOException {
-
-
 
         var handler = new SimplePersonEventHandler();
         var linkHandler = new SimpleLinkLeaveEventHandler();

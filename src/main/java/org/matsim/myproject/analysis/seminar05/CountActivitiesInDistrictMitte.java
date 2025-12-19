@@ -1,25 +1,15 @@
-package org.matsim.myproject.analysis;
+package org.matsim.myproject.analysis.seminar05;
 
-import org.geotools.api.feature.simple.SimpleFeature;
-import org.geotools.data.shapefile.shp.ShapefileReader;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.prep.PreparedGeometry;
-import org.matsim.api.core.v01.Coord;
 import org.matsim.api.core.v01.population.Person;
-import org.matsim.api.core.v01.population.Population;
 import org.matsim.core.population.PopulationUtils;
 import org.matsim.core.router.TripStructureUtils;
 import org.matsim.core.utils.geometry.geotools.MGC;
 import org.matsim.core.utils.geometry.transformations.TransformationFactory;
 import org.matsim.core.utils.gis.GeoFileReader;
-import org.matsim.core.utils.gis.ShapeFileReader;
 import org.matsim.core.utils.io.IOUtils;
-import org.matsim.utils.gis.shp2matsim.ShpGeometryUtils;
 
 import java.net.URL;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 // MATSim Public Tutorial 14.x (2022), Seminar 5
 // task: Write a script together which counts number of activities in Berlin Mitte
