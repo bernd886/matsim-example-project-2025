@@ -60,8 +60,6 @@ public class TravelledDistanceHandler implements TransitDriverStartsEventHandler
         // a person enters a vehicle. We have to remember which vehicle contains which person
         personsInCar.put(personEntersVehicleEvent.getVehicleId(), personEntersVehicleEvent.getPersonId());
         // prepare a new entry in the trips diary of the person and fill it with 0 since the person has travelled 0m yet
-        System.out.println(personsInCar) ;
-        System.out.println("###########################################################") ;
         personToTrips.computeIfAbsent(personEntersVehicleEvent.getPersonId(), id -> new ArrayList<>()).add(0.0);
 
 

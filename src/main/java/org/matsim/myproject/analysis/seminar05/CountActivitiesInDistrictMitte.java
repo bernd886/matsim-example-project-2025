@@ -10,6 +10,7 @@ import org.matsim.core.utils.gis.GeoFileReader;
 import org.matsim.core.utils.io.IOUtils;
 
 import java.net.URL;
+import java.util.stream.Collectors;
 
 // MATSim Public Tutorial 14.x (2022), Seminar 5
 // task: Write a script together which counts number of activities in Berlin Mitte
@@ -35,7 +36,7 @@ public class CountActivitiesInDistrictMitte {
                 // exchange the filtered-out feature into geometry object
                 .map( simpleFeature -> (Geometry) simpleFeature.getDefaultGeometry() )
                 // in most times the stream operation ends with Collect operation
-                .toList();
+                .toList() ;
 
         var districtGeometry = geometries.getFirst() ;
 
@@ -52,7 +53,7 @@ public class CountActivitiesInDistrictMitte {
 
             // Utils class to extract from plans
             // takes the selected plan and info how to handle interaction activities ("stageActivities")
-            var activities =  TripStructureUtils.getActivities( plan, TripStructureUtils.StageActivityHandling.ExcludeStageActivities ) ;
+            var activities =  TripStructureUtils.getActivities( plan, TripStructureUtils.StageActivityHandling.ExcludeStageActivities) ;
 
             // we still have a list over which we have to iterate again
             for ( var activity : activities ) {
@@ -67,8 +68,6 @@ public class CountActivitiesInDistrictMitte {
                 // this coordinate is a MATSim coordinate data structure
                 // has to be transformed into structure of GeoTools for shape files
                 // (M)ATSim(G)eotool(C)onversion
-                var geotoolsActivityCoord = MGC.coord2Coordinate( transformedActivityCoord ) ;
-
                 // ".contains" expects a point, not coordinate
                 var geotoolsActivityPoint = MGC.coord2Point( transformedActivityCoord ) ;
 

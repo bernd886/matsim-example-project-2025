@@ -98,7 +98,7 @@ public class CountActivitiesBetweenDistricts {
 
                 // finally we test
                 // Mitte - FHain
-                if ( geometryMitte.contains( originPoint) ){
+                if ( geometryMitte.contains( originPoint ) ){
                     if ( geometryFHain.contains( destinationPoint ) ) {
                         numberOfTripsBetweenMitteFHain++ ;
                         ListOfMainLegsMitte2FHain.add( new AbstractMap.SimpleEntry<>( mainTripLegMode, mainTripLegDistance ) ) ;
