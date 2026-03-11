@@ -10,7 +10,6 @@ import org.matsim.core.controler.Controler;
 import org.matsim.core.controler.OutputDirectoryHierarchy;
 import org.matsim.core.replanning.strategies.DefaultPlanStrategiesModule;
 import org.matsim.core.scenario.ScenarioUtils;
-import org.matsim.core.scoring.functions.ModeUtilityParameters;
 import org.matsim.core.utils.collections.CollectionUtils;
 import org.matsim.core.utils.io.IOUtils;
 import org.matsim.examples.ExamplesUtils;
@@ -19,12 +18,12 @@ import org.matsim.examples.ExamplesUtils;
 /*
 MATSim Public Tutorial 14.x (2022), Lecture 08
 implementation of multimodality in simple "equil" scenario via teleportation.
-additional "pedelec" mode is NOT ON the network.
-not visible in VIA as vehicle. only represented in plans of agents.
-for that the new mode has be put in QSim and router.
+additional "pedelec" mode is ON the network.
+put in QSim (setMainModes), Router (setNetworkModes), Network (setAllowedModes)
+
 */
 
-public class RunPedelecExampleTeleport {
+public class RunPedelecExample {
 
     public static void main( String[] args ) {
 
@@ -33,6 +32,8 @@ public class RunPedelecExampleTeleport {
         config.controller().setOverwriteFileSetting( OutputDirectoryHierarchy.OverwriteFileSetting.deleteDirectoryIfExists );
 
         config.controller().setLastIteration( 1 );
+
+
 
         // plans innovation (or "strategy"):
         {
@@ -51,18 +52,21 @@ public class RunPedelecExampleTeleport {
         // when implementing new modes, we are using teleport
         // when teleporting, pre-existing are removed, clear for no errors
         config.routing().clearTeleportedModeParams();
+        /*
         {
             RoutingConfigGroup.TeleportedModeParams params = new RoutingConfigGroup.TeleportedModeParams( "pedelec" );
             params.setTeleportedModeSpeed( 15. / 3.6 );
             params.setBeelineDistanceFactor( 1.3 );
             config.routing().addTeleportedModeParams( params );
         }
+        */
         {
             RoutingConfigGroup.TeleportedModeParams params = new RoutingConfigGroup.TeleportedModeParams( "walk" );
             params.setTeleportedModeSpeed( 5. / 3.6 );
             params.setBeelineDistanceFactor( 1.3 );
             config.routing().addTeleportedModeParams( params );
         }
+        config.routing().setNetworkModes( CollectionUtils.stringArrayToSet( modes ) );
 
         // scoring:
         {
@@ -76,7 +80,17 @@ public class RunPedelecExampleTeleport {
             config.scoring().addModeParams( params );
         }
 
+        // qsim
+        // let the "modes" be executed on the network
+        config.qsim().setMainModes( CollectionUtils.stringArrayToSet( modes ) );
+        // conversion because of internal inconsistencies in MATSim
+
         Scenario scenario = ScenarioUtils.loadScenario( config );
+        // "pedelec" has to be allowed on network links
+        for ( var link : scenario.getNetwork().getLinks().values() ) {
+            link.setAllowedModes( CollectionUtils.stringArrayToSet( modes ) );
+        }
+
         Controler controler = new Controler( scenario );
         controler.run();
 
