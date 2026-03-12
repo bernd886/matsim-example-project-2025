@@ -1,8 +1,10 @@
 package org.matsim.myproject.lecture08;
 
+import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
+import org.matsim.core.config.groups.QSimConfigGroup;
 import org.matsim.core.config.groups.ReplanningConfigGroup;
 import org.matsim.core.config.groups.RoutingConfigGroup;
 import org.matsim.core.config.groups.ScoringConfigGroup;
@@ -13,6 +15,8 @@ import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.core.utils.collections.CollectionUtils;
 import org.matsim.core.utils.io.IOUtils;
 import org.matsim.examples.ExamplesUtils;
+import org.matsim.vehicles.VehicleType;
+import org.matsim.vehicles.VehiclesFactory;
 
 
 /*
@@ -33,9 +37,7 @@ public class RunPedelecExample {
 
         config.controller().setLastIteration( 1 );
 
-
-
-        // plans innovation (or "strategy"):
+        // ### plans innovation (or "strategy") ###
         {
             // putting in a mode choice module
             ReplanningConfigGroup.StrategySettings params = new ReplanningConfigGroup.StrategySettings();
@@ -47,28 +49,11 @@ public class RunPedelecExample {
         final String[] modes = { "car", "pedelec" };
         config.changeMode().setModes( modes );
 
-        // routing:
-
-        // when implementing new modes, we are using teleport
-        // when teleporting, pre-existing are removed, clear for no errors
-        config.routing().clearTeleportedModeParams();
-        /*
-        {
-            RoutingConfigGroup.TeleportedModeParams params = new RoutingConfigGroup.TeleportedModeParams( "pedelec" );
-            params.setTeleportedModeSpeed( 15. / 3.6 );
-            params.setBeelineDistanceFactor( 1.3 );
-            config.routing().addTeleportedModeParams( params );
-        }
-        */
-        {
-            RoutingConfigGroup.TeleportedModeParams params = new RoutingConfigGroup.TeleportedModeParams( "walk" );
-            params.setTeleportedModeSpeed( 5. / 3.6 );
-            params.setBeelineDistanceFactor( 1.3 );
-            config.routing().addTeleportedModeParams( params );
-        }
+        // ### routing ###
+        // execute modes on the network
         config.routing().setNetworkModes( CollectionUtils.stringArrayToSet( modes ) );
 
-        // scoring:
+        // ### scoring ###
         {
             ScoringConfigGroup.ModeParams params = new ScoringConfigGroup.ModeParams( "pedelec" );
             params.setMarginalUtilityOfTraveling( 0. );
@@ -80,15 +65,43 @@ public class RunPedelecExample {
             config.scoring().addModeParams( params );
         }
 
-        // qsim
+        // ### qsim ###
         // let the "modes" be executed on the network
-        config.qsim().setMainModes( CollectionUtils.stringArrayToSet( modes ) );
         // conversion because of internal inconsistencies in MATSim
+        config.qsim().setMainModes( CollectionUtils.stringArrayToSet( modes ) );
+        // Where is the vehicle coming from.
+        // When using fromVehiclesData, every vehicle must be predefined. Must be assigned to persons.
+        config.qsim().setVehiclesSource( QSimConfigGroup.VehiclesSource.modeVehicleTypesFromVehiclesData );
+        // enable vehicles passing each other
+        // vehicles sorted by earliestLinkExitTime (when no congestion), but stuck in congestion together
+        config.qsim().setLinkDynamics( QSimConfigGroup.LinkDynamics.PassingQ );
+
 
         Scenario scenario = ScenarioUtils.loadScenario( config );
         // "pedelec" has to be allowed on network links
         for ( var link : scenario.getNetwork().getLinks().values() ) {
             link.setAllowedModes( CollectionUtils.stringArrayToSet( modes ) );
+        }
+        
+        // Slow down "pedelec" mode.
+        // Without vehicles attribute, limits are enforced by link attribute.
+        // because VehicleType is data class (like links, nodes, persons, plans),
+        // one has to go via a polymorphic factory. Not constructors.
+        // Creational methods for data objects are in indirect factory syntax.
+        VehiclesFactory vf = scenario.getVehicles().getFactory();
+        // No pre-configured VehicleType Id. Using the general one.
+        {
+            VehicleType type = vf.createVehicleType( Id.create( "pedelec", VehicleType.class ) );
+            type.setLength( 2. );
+            type.setWidth( 1. );
+            type.setMaximumVelocity( 15./3.6 );
+            type.setNetworkMode( "pedelec" );
+            scenario.getVehicles().addVehicleType( type );
+        }
+        {
+            VehicleType type = vf.createVehicleType( Id.create( "car", VehicleType.class ) );
+            type.setMaximumVelocity( 200./3.6 );
+            scenario.getVehicles().addVehicleType( type );
         }
 
         Controler controler = new Controler( scenario );
