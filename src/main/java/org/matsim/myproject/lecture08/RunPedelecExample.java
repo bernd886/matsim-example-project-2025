@@ -105,8 +105,7 @@ public class RunPedelecExample {
         // No pre-configured VehicleType Id. Using the general one.
         {
             VehicleType type = vf.createVehicleType( Id.create( "pedelec", VehicleType.class ) );
-            type.setLength( 2. );
-            type.setWidth( 1. );
+            type.setPcuEquivalents( 0.25 );
             type.setMaximumVelocity( 15./3.6 );
             type.setNetworkMode( "pedelec" );
             scenario.getVehicles().addVehicleType( type );
