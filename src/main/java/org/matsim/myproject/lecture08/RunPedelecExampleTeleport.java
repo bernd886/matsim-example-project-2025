@@ -18,10 +18,11 @@ import org.matsim.examples.ExamplesUtils;
 
 /*
 MATSim Public Tutorial 14.x (2022), Lecture 08
-implementation of multimodality in simple "equil" scenario via teleportation.
-additional "pedelec" mode is NOT ON the network.
-not visible in VIA as vehicle. only represented in plans of agents.
-for that the new mode has be put in QSim and router.
+Implementation of multimodality in simple "equil" scenario via teleportation.
+Additional "pedelec" mode is NOT ON the network.
+Not visible in VIA as vehicle. only represented in plans of agents.
+For that the new mode has be put in QSim and router.
+For teleported mode WITH routing, see comment in RunPedelecExample
 */
 
 public class RunPedelecExampleTeleport {
@@ -34,27 +35,33 @@ public class RunPedelecExampleTeleport {
 
         config.controller().setLastIteration( 1 );
 
-        // plans innovation (or "strategy"):
+        // ### Plans innovation (or "strategy") ###
+
         {
-            // putting in a mode choice module
+            // Putting in a mode choice module
             ReplanningConfigGroup.StrategySettings params = new ReplanningConfigGroup.StrategySettings();
             params.setStrategyName( DefaultPlanStrategiesModule.DefaultStrategy.ChangeSingleTripMode );
-            params.setWeight( 1. ); // is high to see effect of mode change
+            params.setWeight( 1. ); // is high, to see effect of mode change
             config.replanning().addStrategySettings( params );
         }
-        // configuring mode choice module
+
+        // Configuring mode choice module
         final String[] modes = { "car", "pedelec" };
         config.changeMode().setModes( modes );
 
-        // routing:
+        // ### Routing ###
 
-        // when implementing new modes, we are using teleport
-        // when teleporting, pre-existing are removed, clear for no errors
+        // When implementing new modes, we are using teleport
+        // When teleporting, pre-existing are removed, clear for no errors
         config.routing().clearTeleportedModeParams();
         {
             RoutingConfigGroup.TeleportedModeParams params = new RoutingConfigGroup.TeleportedModeParams( "pedelec" );
             params.setTeleportedModeSpeed( 15. / 3.6 );
             params.setBeelineDistanceFactor( 1.3 );
+
+            // More details with freespeed travel time on network (multiplied by X)
+            // When used, speed and distanceFactor have to be null
+            params.setTeleportedModeFreespeedFactor( null );
             config.routing().addTeleportedModeParams( params );
         }
         {
@@ -64,7 +71,7 @@ public class RunPedelecExampleTeleport {
             config.routing().addTeleportedModeParams( params );
         }
 
-        // scoring:
+        // ### Scoring ###
         {
             ScoringConfigGroup.ModeParams params = new ScoringConfigGroup.ModeParams( "pedelec" );
             params.setMarginalUtilityOfTraveling( 0. );

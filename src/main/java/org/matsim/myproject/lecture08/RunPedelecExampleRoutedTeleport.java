@@ -21,13 +21,13 @@ import org.matsim.vehicles.VehiclesFactory;
 
 /*
 MATSim Public Tutorial 14.x (2022), Lecture 08
-Implementation of multimodality in simple "equil" scenario via teleportation.
-Additional "pedelec" mode is ON the network.
-Put in QSim (setMainModes), Router (setNetworkModes), Network (setAllowedModes)
-
+implementation of multimodality in simple "equil" scenario via teleportation.
+additional "pedelec" mode is NOT ON the network.
+not visible in VIA as vehicle. only represented in plans of agents.
+for that the new mode has be put in QSim and router.
 */
 
-public class RunPedelecExample {
+public class RunPedelecExampleRoutedTeleport {
 
     public static void main( String[] args ) {
 
@@ -54,12 +54,19 @@ public class RunPedelecExample {
 
         // Execute modes on the network
         config.routing().setNetworkModes( CollectionUtils.stringArrayToSet( modes ) );
-
         // Should be standard for multimodal networks. for realistic movement from/ towards activities/ modes
         config.routing().setAccessEgressType( RoutingConfigGroup.AccessEgressType.accessEgressModeToLink );
+        // When implementing new modes, we are using teleport
+        // When teleporting, pre-existing are removed, clear for no errors
+        config.routing().clearTeleportedModeParams();
+        {
+            RoutingConfigGroup.TeleportedModeParams params = new RoutingConfigGroup.TeleportedModeParams( "walk" );
+            params.setTeleportedModeSpeed( 5. / 3.6 );
+            params.setBeelineDistanceFactor( 1.3 );
+            config.routing().addTeleportedModeParams( params );
+        }
 
         // ### Scoring ###
-
         {
             ScoringConfigGroup.ModeParams params = new ScoringConfigGroup.ModeParams( "pedelec" );
             params.setMarginalUtilityOfTraveling( 0. );
@@ -75,16 +82,13 @@ public class RunPedelecExample {
 
         // Let the "modes" be executed on the network
         // Conversion, because of internal inconsistencies in MATSim
-        // To TELEPORT additional modes (on calculated routes), remove from "modes" or comment out
          config.qsim().setMainModes( CollectionUtils.stringArrayToSet( modes ) );
-
+        // Enable vehicles passing each other.
+        // Vehicles sorted by earliestLinkExitTime (when no congestion), but stuck in congestion together.
+        // config.qsim().setLinkDynamics( QSimConfigGroup.LinkDynamics.PassingQ );
         // Where is the vehicle coming from?
         // When using fromVehiclesData, every vehicle must be predefined. Must be assigned to persons.
         config.qsim().setVehiclesSource( QSimConfigGroup.VehiclesSource.modeVehicleTypesFromVehiclesData );
-
-        // Enable vehicles passing each other.
-        // Vehicles sorted by earliestLinkExitTime (when no congestion), but stuck in congestion together.
-        config.qsim().setLinkDynamics( QSimConfigGroup.LinkDynamics.PassingQ );
 
 
         Scenario scenario = ScenarioUtils.loadScenario( config );
@@ -93,15 +97,15 @@ public class RunPedelecExample {
         for ( var link : scenario.getNetwork().getLinks().values() ) {
             link.setAllowedModes( CollectionUtils.stringArrayToSet( modes ) );
         }
-        
-        // Adding vehicles
+
+
+        // Adding Vehicle types
         // Slow down "pedelec" mode.
         // Without vehicles attribute, limits are enforced by link attribute.
-        // Because VehicleType is data class (like links, nodes, persons, plans),
+        // because VehicleType is data class (like links, nodes, persons, plans),
         // one has to go via a polymorphic factory. Not constructors.
         // Creational methods for data objects are in indirect factory syntax.
         VehiclesFactory vf = scenario.getVehicles().getFactory();
-
         // No pre-configured VehicleType Id. Using the general one.
         {
             VehicleType type = vf.createVehicleType( Id.create( "pedelec", VehicleType.class ) );
