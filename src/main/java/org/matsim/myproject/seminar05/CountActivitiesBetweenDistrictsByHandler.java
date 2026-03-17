@@ -1,6 +1,5 @@
-package org.matsim.myproject.analysis.seminar05;
+package org.matsim.myproject.seminar05;
 
-import org.apache.commons.csv.CSVFormat;
 import org.geotools.api.feature.simple.SimpleFeature;
 import org.locationtech.jts.geom.Geometry;
 import org.matsim.core.events.EventsUtils;
@@ -13,8 +12,6 @@ import org.matsim.core.utils.io.IOUtils;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Collection;
 
 // MATSim Public Tutorial 14.x (2022), Seminar 5

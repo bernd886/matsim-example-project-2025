@@ -1,4 +1,4 @@
-package org.matsim.myproject.analysis.seminar04;
+package org.matsim.myproject.seminar04;
 
 import org.apache.commons.csv.CSVFormat;
 import org.matsim.core.events.EventsUtils;

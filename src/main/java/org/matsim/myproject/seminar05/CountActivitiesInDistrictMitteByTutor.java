@@ -1,4 +1,4 @@
-package org.matsim.myproject.analysis.seminar05;
+package org.matsim.myproject.seminar05;
 
 import org.locationtech.jts.geom.Geometry;
 import org.matsim.core.network.NetworkUtils;

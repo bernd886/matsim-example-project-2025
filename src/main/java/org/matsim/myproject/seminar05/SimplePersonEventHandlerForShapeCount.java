@@ -1,4 +1,4 @@
-package org.matsim.myproject.analysis.seminar05;
+package org.matsim.myproject.seminar05;
 
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.events.PersonArrivalEvent;

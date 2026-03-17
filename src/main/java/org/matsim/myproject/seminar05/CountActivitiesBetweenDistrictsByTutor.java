@@ -1,4 +1,4 @@
-package org.matsim.myproject.analysis.seminar05;
+package org.matsim.myproject.seminar05;
 
 import org.geotools.api.feature.simple.SimpleFeature;
 import org.locationtech.jts.geom.Geometry;

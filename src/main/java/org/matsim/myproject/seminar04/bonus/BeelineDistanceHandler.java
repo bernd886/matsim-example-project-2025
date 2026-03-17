@@ -1,4 +1,4 @@
-package org.matsim.myproject.analysis.seminar04.bonus;
+package org.matsim.myproject.seminar04.bonus;
 
 import org.matsim.api.core.v01.Coord;
 import org.matsim.api.core.v01.Id;
