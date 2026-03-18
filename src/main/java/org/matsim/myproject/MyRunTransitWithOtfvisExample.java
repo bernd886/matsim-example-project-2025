@@ -136,7 +136,13 @@ public class MyRunTransitWithOtfvisExample {
 
         final Controler controler = new Controler( scenario ) ;
 
-//        controler.addOverridingModule( new OTFVisLiveModule() ) ;
+        // for OTFVis visualization after Java 16
+        // add JVM arguments:
+        // --add-exports java.base/java.lang=ALL-UNNAMED
+        // --add-exports java.desktop/sun.awt=ALL-UNNAMED
+        // --add-exports java.desktop/sun.java2d=ALL-UNNAMED
+        // More Run > Modify ... > Modify Options >> Add VM Options
+        controler.addOverridingModule( new OTFVisLiveModule() ) ;
 
 
         controler.run() ;
