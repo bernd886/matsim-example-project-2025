@@ -17,7 +17,7 @@ public class SimpleNetworkChange {
 
         var network = NetworkUtils.readNetwork( "C:\\Users\\lenovo\\IdeaProjects\\matsim-example-project-2025\\src\\main\\java\\org\\matsim\\myproject\\network.xml" );
 
-        changeNetwork( network ); ;
+        changeNetwork( network );
 
         NetworkUtils.writeNetwork( network, "C:\\Users\\lenovo\\IdeaProjects\\matsim-example-project-2025\\src\\main\\java\\org\\matsim\\myproject\\network_edit.xml" );
 
