@@ -22,12 +22,15 @@ import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.groups.QSimConfigGroup;
 import org.matsim.core.config.groups.QSimConfigGroup.SnapshotStyle;
 import org.matsim.core.config.groups.ReplanningConfigGroup.StrategySettings;
+import org.matsim.core.config.groups.RoutingConfigGroup;
 import org.matsim.core.config.groups.ScoringConfigGroup.ModeParams;
 import org.matsim.core.controler.Controler;
 import org.matsim.core.controler.OutputDirectoryHierarchy.OverwriteFileSetting;
 import org.matsim.core.replanning.strategies.DefaultPlanStrategiesModule.DefaultSelector;
 import org.matsim.core.replanning.strategies.DefaultPlanStrategiesModule.DefaultStrategy;
 import org.matsim.core.scenario.ScenarioUtils;
+import org.matsim.core.utils.io.IOUtils;
+import org.matsim.examples.ExamplesUtils;
 import org.matsim.vis.otfvis.OTFVisConfigGroup;
 
 public class RunDrtExample {
@@ -36,15 +39,17 @@ public class RunDrtExample {
     // * remove the DrtRoute.class thing; use Attributable instead (Route will have to be made implement Attributable).  If impossible, move the DrtRoute
     // class thing to the core.
     // * move consistency checkers into the corresponding config groups.
-    // * make MultiModeDrt and normal DRT the same.  Make config accordingly so that 1-mode drt is just multi-mode with one entry.
+    // * make MultiModeDrt and normal DRT the same. Make config accordingly so that 1-mode drt is just multi-mode with one entry.
 
     private static final Logger log = LogManager.getLogger( RunDrtExample.class );
     private static final String DRT_A = "drt_A";
     private static final String DRT_B = "drt_B";
     private static final String DRT_C = "drt_C";
 
+    private static final boolean OTFVIS = false; // set to TRUE to enable OTF visualization
+
     public static void main( String... args ) {
-        run(true, args);
+        run( OTFVIS, args);
     }
 
     public static void run(boolean otfvis, String... args ){
@@ -54,18 +59,19 @@ public class RunDrtExample {
         } else {
             // config = ConfigUtils.loadConfig( IOUtils.extendUrl( ExamplesUtils.getTestScenarioURL( "dvrp-grid" ), "multi_mode_one_shared_taxi_config.xml" ) );
             // the above is there, but is totally different.  --> consolidate.  kai, jan'23
-
             config = ConfigUtils.loadConfig( "./scenarios/multi_mode_one_shared_taxi/multi_mode_one_shared_taxi_config.xml" );
             config.controller().setOverwriteFileSetting( OverwriteFileSetting.deleteDirectoryIfExists );
         }
 
         config.controller().setLastIteration( 5 );
 
-        config.qsim().setSimStarttimeInterpretation( QSimConfigGroup.StarttimeInterpretation.onlyUseStarttime );
-        config.qsim().setInsertingWaitingVehiclesBeforeDrivingVehicles( true ); // necessary
-        // KinWaves "best setting"
-        config.qsim().setTrafficDynamics( QSimConfigGroup.TrafficDynamics.kinematicWaves );
-        config.qsim().setSnapshotStyle( SnapshotStyle.kinematicWaves );
+        {
+            config.qsim().setSimStarttimeInterpretation( QSimConfigGroup.StarttimeInterpretation.onlyUseStarttime );
+            config.qsim().setInsertingWaitingVehiclesBeforeDrivingVehicles( true ); // necessary
+            // KinWaves "best setting"
+            config.qsim().setTrafficDynamics( QSimConfigGroup.TrafficDynamics.kinematicWaves );
+            config.qsim().setSnapshotStyle( SnapshotStyle.kinematicWaves );
+        }
 
         @SuppressWarnings("unused")
         // Base config
@@ -86,36 +92,40 @@ public class RunDrtExample {
             // "maxWaitTime" ~ until taxi arrives for boarding
             // "maxTravelTimeAlpha" ~ (%) how much longer trip is allowed to take, compared to a direct trip
             // "maxTravelTimeBeta" ~ (s) how much longer trip is allowed to take, compared to a direct trip
-//            for ( DrtConfigGroup modalConfig : multiModeDrtCfg.getModalElements() ) {
-//                modalConfig.
-//            }
+            for ( DrtConfigGroup modalConfig : multiModeDrtCfg.getModalElements() ) {
+//                modalConfig.set ...
+            }
+//            like
+//            var routConf = ConfigUtils.addOrGetModule( config, RoutingConfigGroup.class ) ;
+//            routConf.getOrCreateModeRoutingParams( TransportMode.car ).set ...
         }
+
 
         {
             DrtConfigGroup drtConfig = new DrtConfigGroup();
             drtConfig.setMode( DRT_A );
-            drtConfig.setStopDuration(60.);
+            drtConfig.setStopDuration( 60. );
             drtConfig.addOrGetDrtOptimizationConstraintsParams().addOrGetDefaultDrtOptimizationConstraintsSet().addParam( "maxWaitTime", String.valueOf( 900 ) );
             drtConfig.addOrGetDrtOptimizationConstraintsParams().addOrGetDefaultDrtOptimizationConstraintsSet().addParam( "maxTravelTimeAlpha", String.valueOf( 1.3 ) );
             drtConfig.addOrGetDrtOptimizationConstraintsParams().addOrGetDefaultDrtOptimizationConstraintsSet().addParam( "maxTravelTimeBeta", String.valueOf( 10. * 60. ) );
             drtConfig.addOrGetDrtOptimizationConstraintsParams().addOrGetDefaultDrtOptimizationConstraintsSet().addParam( "rejectRequestIfMaxWaitOrTravelTimeViolated", String.valueOf(false) );
             drtConfig.setVehiclesFile("one_shared_taxi_vehicles_A.xml");
-            drtConfig.setChangeStartLinkToLastLinkInSchedule(true);
+            drtConfig.setChangeStartLinkToLastLinkInSchedule( true );
             drtConfig.setDrtInsertionSearchParams( new ExtensiveInsertionSearchParams() );
             multiModeDrtCfg.addParameterSet(drtConfig);
         }
         {
             DrtConfigGroup drtConfig = new DrtConfigGroup();
-            drtConfig.setMode(DRT_B);
-            drtConfig.setStopDuration(60.);
+            drtConfig.setMode( DRT_B );
+            drtConfig.setStopDuration( 60. );
             drtConfig.addOrGetDrtOptimizationConstraintsParams().addOrGetDefaultDrtOptimizationConstraintsSet().addParam( "maxWaitTime", String.valueOf( 900 ) );
             drtConfig.addOrGetDrtOptimizationConstraintsParams().addOrGetDefaultDrtOptimizationConstraintsSet().addParam( "maxTravelTimeAlpha", String.valueOf( 1.3 ) );
             drtConfig.addOrGetDrtOptimizationConstraintsParams().addOrGetDefaultDrtOptimizationConstraintsSet().addParam( "maxTravelTimeBeta", String.valueOf( 10. * 60. ) );
             drtConfig.addOrGetDrtOptimizationConstraintsParams().addOrGetDefaultDrtOptimizationConstraintsSet().addParam( "rejectRequestIfMaxWaitOrTravelTimeViolated", String.valueOf(false) );
-            drtConfig.setVehiclesFile("one_shared_taxi_vehicles_B.xml");
-            drtConfig.setChangeStartLinkToLastLinkInSchedule(true);
+            drtConfig.setVehiclesFile( "one_shared_taxi_vehicles_B.xml" );
+            drtConfig.setChangeStartLinkToLastLinkInSchedule( true );
             drtConfig.setDrtInsertionSearchParams( new ExtensiveInsertionSearchParams() );
-            multiModeDrtCfg.addParameterSet(drtConfig);
+            multiModeDrtCfg.addParameterSet( drtConfig );
         }
         {
             DrtConfigGroup drtConfig = new DrtConfigGroup();
@@ -134,6 +144,7 @@ public class RunDrtExample {
         for (DrtConfigGroup drtCfg : multiModeDrtCfg.getModalElements()) {
             DrtConfigs.adjustDrtConfig(drtCfg, config.scoring(), config.routing());
         }
+
         {
             // add params so that scoring works:
             config.scoring().addModeParams( new ModeParams( DRT_A ) );
@@ -160,38 +171,43 @@ public class RunDrtExample {
 
         // === Scenario
         Scenario scenario = ScenarioUtils.createScenario( config );
-        // Since injector lives at controler level, one has to announces, that able to handle drt routing
+        // registering mode type
+        /*
+        Since juice injector lives at controler level, it does not yet exist at scenario level.
+        One has to announce mode type, so that controler is able to handle drt routing
+        * */
         scenario.getPopulation().getFactory().getRouteFactories().setRouteFactory( DrtRoute.class, new DrtRouteFactory() );
         ScenarioUtils.loadScenario( scenario );
         // yyyy in long run, try to get rid of the route factory thing
 
         // MODIFY scenario
+
         {
-//            for ( Person person : scenario.getPopulation().getPersons().values() ) {
-//                // let everybody want to depart at same time
-//                Activity firstActivity = (Activity) person.getSelectedPlan().getPlanElements().get( 0 );
+            for ( Person person : scenario.getPopulation().getPersons().values() ) {
+                // let everybody want to depart at same time
+//                Activity firstActivity = (Activity) person.getSelectedPlan().getPlanElements().get( 0 ); // plan order: act - leg - act - leg - act
 //                firstActivity.setEndTime( 0 );
-//                // let everyone switch to the same mode. so there is only one taxi.
+                // let everyone switch to the same mode. so there is only one taxi.
 //                Leg firstLeg = (Leg) person.getSelectedPlan().getPlanElements().get( 1 );
 //                firstLeg.setMode( DRT_A );
-//            }
+            }
         }
 
 
         // === Controler
         Controler controler = new Controler( scenario ) ;
 
-        controler.addOverridingModule( new DvrpModule() ) ;
-        controler.addOverridingModule( new MultiModeDrtModule( ) ) ;
-
-        controler.configureQSimComponents( DvrpQSimComponents.activateModes( DRT_A, DRT_B, DRT_C ) ) ;
+        controler.addOverridingModule( new DvrpModule() ) ; // base functionality
+        controler.addOverridingModule( new MultiModeDrtModule( ) ) ; // additional functionality
+        // additional syntax, which has to do with QSim
+        controler.configureQSimComponents( DvrpQSimComponents.activateModes( DRT_A, DRT_B, DRT_C ) ) ; // activation of modes
         // yyyy in long run, try to get rid of the above line
 
         if (otfvis) {
-            OTFVisConfigGroup otfVisConfigGroup = ConfigUtils.addOrGetModule(config, OTFVisConfigGroup.class);
-            otfVisConfigGroup.setLinkWidth(5);
-            otfVisConfigGroup.setDrawNonMovingItems(true);
-            // controler.addOverridingModule(new OTFVisLiveModule());
+            OTFVisConfigGroup otfVisConfigGroup = ConfigUtils.addOrGetModule( config, OTFVisConfigGroup.class );
+            otfVisConfigGroup.setLinkWidth( 5 );
+            otfVisConfigGroup.setDrawNonMovingItems( true );
+            controler.addOverridingModule( new OTFVisLiveModule() );
         }
 
         controler.run() ;

@@ -16,6 +16,7 @@ import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.core.utils.collections.CollectionUtils;
 import org.matsim.core.utils.io.IOUtils;
 import org.matsim.examples.ExamplesUtils;
+import org.matsim.simwrapper.SimWrapperModule;
 import org.matsim.vehicles.VehicleType;
 import org.matsim.vehicles.VehiclesFactory;
 
@@ -35,7 +36,7 @@ public class RunPedelecExample {
         Config config = ConfigUtils.loadConfig( url );
         config.controller().setOverwriteFileSetting( OutputDirectoryHierarchy.OverwriteFileSetting.deleteDirectoryIfExists );
 
-        config.controller().setLastIteration( 1 );
+        config.controller().setLastIteration( 20 );
 
         // ### PLANNING innovation (or "strategy") ###
         {
@@ -157,6 +158,7 @@ public class RunPedelecExample {
         }
 
         Controler controler = new Controler( scenario );
+        controler.addOverridingModule ( new SimWrapperModule() );
         controler.run();
 
     }
