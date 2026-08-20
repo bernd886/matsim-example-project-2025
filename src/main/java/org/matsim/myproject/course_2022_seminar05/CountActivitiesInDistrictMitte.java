@@ -1,4 +1,4 @@
-package org.matsim.myproject.seminar05;
+package org.matsim.myproject.course_2022_seminar05;
 
 import org.locationtech.jts.geom.Geometry;
 import org.matsim.api.core.v01.population.Person;
@@ -10,7 +10,6 @@ import org.matsim.core.utils.gis.GeoFileReader;
 import org.matsim.core.utils.io.IOUtils;
 
 import java.net.URL;
-import java.util.stream.Collectors;
 
 // MATSim Public Tutorial 14.x (2022), Seminar 5
 // task: Write a script together which counts number of activities in Berlin Mitte

@@ -62,8 +62,6 @@ public class MyRunMatsim {
 //		controler.addOverridingModule( new OTFVisLiveModule() ) ;
 
 //		controler.addOverridingModule( new SimWrapperModule() );
-
-		controler . addOverridingModule ( new SimWrapperModule() );
 		
 		// ---
 		

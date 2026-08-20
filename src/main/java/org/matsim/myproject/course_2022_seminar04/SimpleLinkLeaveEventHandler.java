@@ -1,4 +1,4 @@
-package org.matsim.myproject.seminar04;
+package org.matsim.myproject.course_2022_seminar04;
 
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.events.LinkLeaveEvent;

@@ -19,14 +19,11 @@
 package org.matsim.project;
 
 import org.matsim.api.core.v01.Scenario;
-import org.matsim.contrib.otfvis.OTFVisLiveModule;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.controler.Controler;
 import org.matsim.core.controler.OutputDirectoryHierarchy.OverwriteFileSetting;
 import org.matsim.core.scenario.ScenarioUtils;
-import org.matsim.myproject.seminar07.SimpleNetworkChange;
-import org.matsim.simwrapper.SimWrapperModule;
 
 /**
  * @author nagel
@@ -49,7 +46,7 @@ public class RunMatsim{
 
 		// ---
 
-		config.controller().setLastIteration( 3 );
+		config.controller().setLastIteration( 5 );
 
 		Scenario scenario = ScenarioUtils.loadScenario(config) ;
 

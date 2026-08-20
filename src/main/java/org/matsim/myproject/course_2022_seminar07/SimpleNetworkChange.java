@@ -1,4 +1,4 @@
-package org.matsim.myproject.seminar07;
+package org.matsim.myproject.course_2022_seminar07;
 
 import org.matsim.api.core.v01.TransportMode;
 import org.matsim.api.core.v01.network.Link;
