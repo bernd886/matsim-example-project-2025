@@ -32,7 +32,9 @@ import org.matsim.simwrapper.SimWrapperModule;
  */
 public class MyRunMatsim {
 
-	public static void main(String[] args) {
+	private static final double SAMPLESIZE = 0.1;
+
+	public static void main( String[] args) {
 
 		Config config;
 		if ( args==null || args.length==0 || args[0]==null ){
@@ -46,12 +48,21 @@ public class MyRunMatsim {
         config.controller().setOutputDirectory("my-output");
 		// possibly modify config here (first/ last iteration, learning functions, etc.)
 
+		// downsampling
+		// config.qsim().setFlowCapFactor( SAMPLESIZE );
+		// config.qsim().setStorageCapFactor( SAMPLESIZE );
+
 		// ---
 
 		Scenario scenario = ScenarioUtils.loadScenario(config) ;
 
 		// possibly modify scenario here (infrastructure: links, persons, plans)
-		
+
+		// downsampling
+		// double samplesize = 0.1 ;
+		// config.qsim().setFlowCapFactor( samplesize ) ;
+		// config.qsim().setStorageCapFactor( samplesize ) ;
+
 		// ---
 		
 		Controler controler = new Controler( scenario ) ;
