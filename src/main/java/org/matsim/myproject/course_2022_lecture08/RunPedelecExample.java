@@ -75,11 +75,10 @@ public class RunPedelecExample {
 
         // Let the "modes" be executed on the network
         /*
-
         Conversion, because of internal inconsistencies in MATSim
         To TELEPORT additional modes (on calculated routes), remove from "modes" or comment out
         */
-         config.qsim().setMainModes( CollectionUtils.stringArrayToSet( modes ) );
+        config.qsim().setMainModes( CollectionUtils.stringArrayToSet( modes ) );
 
         // Where is the vehicle coming from?
         /*
@@ -90,14 +89,19 @@ public class RunPedelecExample {
         */
         config.qsim().setVehiclesSource( QSimConfigGroup.VehiclesSource.modeVehicleTypesFromVehiclesData );
 
-        // Enable vehicles passing each other.
-        // Vehicles sorted by earliestLinkExitTime (when no congestion), but stuck in congestion together.
+        // How do vehicles interact?
+        /*
+        * FIFO      ~ "first in, first out": vehicles leaving in the same order of entering the link
+        * PassingQ  ~ vehicles are stuck behind each other, only if they are in a queue.
+        *             Enable vehicles passing each other.
+        *             Vehicles sorted by earliestLinkExitTime (when no congestion), but stuck in congestion together.
+        * */
         config.qsim().setLinkDynamics( QSimConfigGroup.LinkDynamics.PassingQ );
 
         // Behavior, if vehicle needed is not present
         /*
         // exception ~ simulation will break
-        // wait ~ for the one available but busy car of household, for example
+        // wait ~ (example:) for the one available but busy car of household
         // teleport ~ do not enforce particle consistency
         */
         config.qsim().setVehicleBehavior( QSimConfigGroup.VehicleBehavior.teleport );

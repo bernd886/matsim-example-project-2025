@@ -49,8 +49,10 @@ public class RunPedelecExampleTeleport {
 
         // ### Routing ###
 
-        // When implementing new modes, we are using teleport
-        // When teleporting, pre-existing are removed, clear for no errors
+        // When implementing new modes, we first are using teleport
+        // When adding teleportation mode, pre-existing ones are removed.
+        // Like constructors: overriding the default, deletes all predefined.
+        // clear for no errors
         config.routing().clearTeleportedModeParams();
         {
             RoutingConfigGroup.TeleportedModeParams params = new RoutingConfigGroup.TeleportedModeParams( "pedelec" );
