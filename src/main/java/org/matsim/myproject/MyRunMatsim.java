@@ -52,22 +52,23 @@ public class MyRunMatsim {
 		// config.qsim().setFlowCapFactor( SAMPLESIZE );
 		// config.qsim().setStorageCapFactor( SAMPLESIZE );
 
+		// innovation switch-off and averaging for convergence of scores
+		// config.replanning().setFractionOfIterationsToDisableInnovation( 0.8 ) ;
+		// no more innovation (mutation), only selection between existing plans
+		// config.scoring().setFractionOfIterationsToStartScoreMSA( 0.8 ) ;
+		// score averaging averages the scores everytime a plan is used
+
 		// ---
 
 		Scenario scenario = ScenarioUtils.loadScenario(config) ;
 
 		// possibly modify scenario here (infrastructure: links, persons, plans)
 
-		// downsampling
-		// double samplesize = 0.1 ;
-		// config.qsim().setFlowCapFactor( samplesize ) ;
-		// config.qsim().setStorageCapFactor( samplesize ) ;
-
 		// ---
 		
 		Controler controler = new Controler( scenario ) ;
 		
-		// possibly modify controler here (how to controll the program)
+		// possibly modify controller here (how to control the program)
         // all possible modifications subsumed under the most important ones: addOverridingModule, addOverridingQSimModule
 
 //		controler.addOverridingModule( new OTFVisLiveModule() ) ;

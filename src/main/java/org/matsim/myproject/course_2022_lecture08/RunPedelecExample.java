@@ -91,18 +91,18 @@ public class RunPedelecExample {
 
         // How do vehicles interact?
         /*
-        * FIFO      ~ "first in, first out": vehicles leaving in the same order of entering the link
-        * PassingQ  ~ vehicles are stuck behind each other, only if they are in a queue.
-        *             Enable vehicles passing each other.
-        *             Vehicles sorted by earliestLinkExitTime (when no congestion), but stuck in congestion together.
-        * */
+        FIFO      ~ "first in, first out": vehicles leaving in the same order of entering the link
+        PassingQ  ~ vehicles are stuck behind each other, only if they are in a queue.
+                    Enable vehicles passing each other.
+                    Vehicles sorted by earliestLinkExitTime (when no congestion), but stuck in congestion together.
+        */
         config.qsim().setLinkDynamics( QSimConfigGroup.LinkDynamics.PassingQ );
 
         // Behavior, if vehicle needed is not present
         /*
-        // exception ~ simulation will break
-        // wait ~ (example:) for the one available but busy car of household
-        // teleport ~ do not enforce particle consistency
+        exception ~ simulation will break
+        wait ~ (example:) for the one available but busy car of household
+        teleport ~ do not enforce particle consistency
         */
         config.qsim().setVehicleBehavior( QSimConfigGroup.VehicleBehavior.teleport );
 

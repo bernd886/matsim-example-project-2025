@@ -65,7 +65,7 @@ public class MyRunTransitWithOtfvisExample {
         config.qsim().setSnapshotStyle( SnapshotStyle.kinematicWaves ) ;
         config.qsim().setVehicleBehavior( QSimConfigGroup.VehicleBehavior.wait ) ;
 
-                // === REPLANING
+        // === REPLANING
         {
             // replanning: adding new selector strategy, which is non-innovative (from lecture 4 (2022))
             // for illustrative example full controll with BestScore + Random can be useful
