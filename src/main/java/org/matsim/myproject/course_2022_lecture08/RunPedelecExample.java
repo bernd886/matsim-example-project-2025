@@ -18,6 +18,7 @@ import org.matsim.core.utils.io.IOUtils;
 import org.matsim.examples.ExamplesUtils;
 import org.matsim.simwrapper.SimWrapperModule;
 import org.matsim.vehicles.VehicleType;
+import org.matsim.vehicles.VehicleUtils;
 import org.matsim.vehicles.VehiclesFactory;
 
 import java.util.ArrayList;
@@ -56,8 +57,7 @@ public class RunPedelecExample {
         Set<String> modes = new HashSet<>() ;
         modes.add( TransportMode.car ) ;
         modes.add( "pedelec" ) ;
-        config.changeMode().setModes( new String[]{ String.valueOf( modes ) } ) ;
-
+        config.changeMode().setModes( modes.toArray(String[]::new) ) ;
         // ### ROUTING ###
 
         // Execute modes on the network
