@@ -45,21 +45,19 @@ public class RunPedelecExample {
         config.controller().setLastIteration( 10 );
 
         // ### PLANNING innovation (or "strategy") ###
-        {
-            // Putting in a mode choice module
+        {   // Putting in a mode choice module
             ReplanningConfigGroup.StrategySettings params = new ReplanningConfigGroup.StrategySettings();
             params.setStrategyName( DefaultPlanStrategiesModule.DefaultStrategy.ChangeSingleTripMode );
             params.setWeight( 1. ); // is high, to see effect of mode change
             config.replanning().addStrategySettings( params );
         }
         // Configuring mode choice module
-        // final String[] modes = { "car", "pedelec" };
         Set<String> modes = new HashSet<>() ;
         modes.add( TransportMode.car ) ;
         modes.add( "pedelec" ) ;
         config.changeMode().setModes( modes.toArray(String[]::new) ) ;
-        // ### ROUTING ###
 
+        // ### ROUTING ###
         // Execute modes on the network
         config.routing().setNetworkModes( modes ) ;
 
