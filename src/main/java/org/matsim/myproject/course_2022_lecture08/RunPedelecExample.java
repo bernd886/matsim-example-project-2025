@@ -2,6 +2,7 @@ package org.matsim.myproject.course_2022_lecture08;
 
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
+import org.matsim.api.core.v01.TransportMode;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.groups.QSimConfigGroup;
@@ -19,6 +20,11 @@ import org.matsim.simwrapper.SimWrapperModule;
 import org.matsim.vehicles.VehicleType;
 import org.matsim.vehicles.VehiclesFactory;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 
 /*
 MATSim Public Tutorial 14.x (2022), Lecture 08
@@ -35,7 +41,7 @@ public class RunPedelecExample {
         Config config = ConfigUtils.loadConfig( url );
         config.controller().setOverwriteFileSetting( OutputDirectoryHierarchy.OverwriteFileSetting.deleteDirectoryIfExists );
 
-        config.controller().setLastIteration( 20 );
+        config.controller().setLastIteration( 10 );
 
         // ### PLANNING innovation (or "strategy") ###
         {
@@ -46,27 +52,29 @@ public class RunPedelecExample {
             config.replanning().addStrategySettings( params );
         }
         // Configuring mode choice module
-        final String[] modes = { "car", "pedelec" };
-        config.changeMode().setModes( modes );
+        // final String[] modes = { "car", "pedelec" };
+        Set<String> modes = new HashSet<>() ;
+        modes.add( TransportMode.car ) ;
+        modes.add( "pedelec" ) ;
+        config.changeMode().setModes( new String[]{ String.valueOf( modes ) } ) ;
 
         // ### ROUTING ###
 
         // Execute modes on the network
-        config.routing().setNetworkModes( CollectionUtils.stringArrayToSet( modes ) );
+        config.routing().setNetworkModes( modes ) ;
 
         // For realistic movement from/ towards activities/ modes (subnetwork of correct type/ mode)
         // Should be default (always in use) for multimodal networks.
         config.routing().setAccessEgressType( RoutingConfigGroup.AccessEgressType.accessEgressModeToLink );
 
         // ### SCORING ###
-
         {
             ScoringConfigGroup.ModeParams params = new ScoringConfigGroup.ModeParams( "pedelec" );
             params.setMarginalUtilityOfTraveling( 0. );
             config.scoring().addModeParams( params );
         }
         {
-            ScoringConfigGroup.ModeParams params = new ScoringConfigGroup.ModeParams( "car" );
+            ScoringConfigGroup.ModeParams params = new ScoringConfigGroup.ModeParams( TransportMode.car );
             params.setMarginalUtilityOfTraveling( 0. );
             config.scoring().addModeParams( params );
         }
@@ -78,7 +86,7 @@ public class RunPedelecExample {
         Conversion, because of internal inconsistencies in MATSim
         To TELEPORT additional modes (on calculated routes), remove from "modes" or comment out
         */
-        config.qsim().setMainModes( CollectionUtils.stringArrayToSet( modes ) );
+        config.qsim().setMainModes( modes ) ;
 
         // Where is the vehicle coming from?
         /*
@@ -113,7 +121,7 @@ public class RunPedelecExample {
         {
             // "pedelec" has to be allowed on network links
             for ( var link : scenario.getNetwork().getLinks().values() ) {
-                link.setAllowedModes( CollectionUtils.stringArrayToSet( modes ) );
+                link.setAllowedModes( modes ) ;
             }
         }
         {
