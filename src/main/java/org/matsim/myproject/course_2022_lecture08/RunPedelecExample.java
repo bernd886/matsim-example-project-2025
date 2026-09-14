@@ -14,6 +14,8 @@ import org.matsim.core.controler.OutputDirectoryHierarchy;
 import org.matsim.core.replanning.strategies.DefaultPlanStrategiesModule;
 import org.matsim.core.scenario.ScenarioUtils;
 
+import org.matsim.core.utils.io.IOUtils;
+import org.matsim.examples.ExamplesUtils;
 import org.matsim.simwrapper.SimWrapperModule;
 import org.matsim.vehicles.VehicleType;
 import org.matsim.vehicles.VehiclesFactory;
@@ -34,7 +36,8 @@ public class RunPedelecExample {
         // --------------------------------------------------------------------
         // --- CONFIG ---------------------------------------------------------
         // --------------------------------------------------------------------
-        Config config = ConfigUtils.loadConfig( "./scenarios/equil/config.xml" ) ;
+        var url = IOUtils.extendUrl( ExamplesUtils.getTestScenarioURL( "equil" ), "config.xml" );
+        Config config = ConfigUtils.loadConfig( url );
         config.controller().setOutputDirectory( "./output/" ) ;
         config.controller().setOverwriteFileSetting( OutputDirectoryHierarchy.OverwriteFileSetting.deleteDirectoryIfExists ) ;
         config.controller().setLastIteration( 20 ) ;
@@ -55,8 +58,12 @@ public class RunPedelecExample {
         // --------------------------------------------------------------------
         // --- CONFIG --- REPLANNING ------------------------------------------
         // --------------------------------------------------------------------
-        /* Plan innovation (or "strategy") */
-        config.replanning().setFractionOfIterationsToDisableInnovation( 0.8 );
+        /* Plan innovation (or "strategy")
+         *
+         * innovation switch-off.
+         * no more innovation (mutation), only selection between existing plans.
+         * Should be used with averaging scores (see SCORING). */
+        //config.replanning().setFractionOfIterationsToDisableInnovation( 0.8 );
 
         // --------------------------------------------------------------------
         // --- CONFIG --- REPLANNING --- MODE CHANGE --------------------------
@@ -95,6 +102,11 @@ public class RunPedelecExample {
         // --------------------------------------------------------------------
         // --- CONFIG --- QSIM ------------------------------------------------
         // --------------------------------------------------------------------
+        /* DownSampling: 0.0 - 1.0 */
+        final double SAMPLESIZE = 1.0 ;
+        config.qsim().setFlowCapFactor( SAMPLESIZE ) ;
+        config.qsim().setStorageCapFactor( SAMPLESIZE ) ;
+
         /* Let the "modes" be executed on the network.
          * To TELEPORT additional modes (on calculated routes), remove from "modes" or comment out. */
         config.qsim().setMainModes( modes ) ;
@@ -124,6 +136,8 @@ public class RunPedelecExample {
         // -------------------------------------------------------------------
         /* Till here, we were building the config. */
         Scenario scenario = ScenarioUtils.loadScenario( config ) ;
+
+        /* Possibly modify scenario here (infrastructure: links, persons, plans) */
 
         /* Adding attributes to objects.
          * "myMode" has to be allowed on network links */
@@ -177,6 +191,11 @@ public class RunPedelecExample {
         // --- CONTROLER ------------------------------------------------------
         // --------------------------------------------------------------------
         Controler controler = new Controler( scenario ) ;
+
+        /* possibly modify controller here (how to control the program)
+         * all possible modifications subsumed under the most important ones:
+         * addOverridingModule, addOverridingQSimModule */
+        //controler.addOverridingModule( new OTFVisLiveModule() ) ;
         controler.addOverridingModule( new SimWrapperModule() ) ;
         controler.run() ;
 
