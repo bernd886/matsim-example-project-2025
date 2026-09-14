@@ -37,7 +37,6 @@ import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.core.utils.io.IOUtils;
 import org.matsim.vis.otfvis.OTFVisConfigGroup;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 
 public class MyRunTransitWithOtfvisExample {

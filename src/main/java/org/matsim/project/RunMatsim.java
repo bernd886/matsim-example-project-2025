@@ -46,7 +46,7 @@ public class RunMatsim{
 
 		// ---
 
-		config.controller().setLastIteration( 5 );
+		config.controller().setLastIteration( 30 );
 
 		Scenario scenario = ScenarioUtils.loadScenario(config) ;
 
