@@ -1,9 +1,10 @@
 package org.matsim.myproject;
 
-import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.TransportMode;
+
 import org.matsim.contrib.otfvis.OTFVisLiveModule;
+
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.groups.QSimConfigGroup;
@@ -15,9 +16,9 @@ import org.matsim.core.controler.OutputDirectoryHierarchy;
 import org.matsim.core.replanning.strategies.DefaultPlanStrategiesModule;
 import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.core.utils.io.IOUtils;
+
 import org.matsim.simwrapper.SimWrapperModule;
-import org.matsim.vehicles.VehicleType;
-import org.matsim.vehicles.VehiclesFactory;
+
 import org.matsim.vis.otfvis.OTFVisConfigGroup;
 
 import java.net.URL;
@@ -36,7 +37,6 @@ public class MyCleanTestTun {
         // --- CONFIG ---------------------------------------------------------
         // --------------------------------------------------------------------
 
-
         Config config = null ;
         if ( args != null && args.length >= 1 ) {
             config = ConfigUtils.loadConfig( args[0], new OTFVisConfigGroup() ) ;
@@ -49,15 +49,17 @@ public class MyCleanTestTun {
             config = ConfigUtils.loadConfig( url, new OTFVisConfigGroup() ) ;
         }
 
-        config.controller().setOutputDirectory( "./output/" ) ;
+        config.controller().setOutputDirectory( "output" ) ;
         config.controller().setOverwriteFileSetting( OutputDirectoryHierarchy.OverwriteFileSetting.deleteDirectoryIfExists ) ;
-        config.controller().setLastIteration( 1 ) ;
+        config.controller().setLastIteration( 30 ) ;
 
         /* possibly modify config here (first/ last iteration, learning functions, etc.) */
 
         /* Time interval size for which link travel times are calculated (default).
         * For sims with small scale changes (evacuation), switching calculator to HashMap useful (where?) */
         config.travelTimeCalculator().setTraveltimeBinSize( 900 ) ;
+
+        // config.transit().setUseTransit( true ); ;
 
         // --------------------------------------------------------------------
         // --- CONFIG --- MODE CHOICE -----------------------------------------
@@ -71,13 +73,14 @@ public class MyCleanTestTun {
         * Simulation:   must be able to process it.
         * Scoring:      must be able to give it a score". */
         var modes = new HashSet<String>() ;
+        final String MY_MODE = "eScooter" ;
         modes.add( TransportMode.car ) ;
         modes.add( TransportMode.bike ) ;
-        modes.add( "eScooter" ) ;
+        modes.add( MY_MODE ) ;
         config.changeMode().setModes( modes.toArray( String[]::new ) ) ;
 
-        var subModes = new HashSet<String>() ;
-        config.subtourModeChoice().setModes( subModes.toArray( String[]::new ) ) ;
+        // var subModes = new HashSet<String>() ;
+        config.subtourModeChoice().setModes( modes.toArray( String[]::new ) ) ;
 
         // --------------------------------------------------------------------
         // --- CONFIG --- REPLANNING ------------------------------------------
@@ -88,8 +91,8 @@ public class MyCleanTestTun {
         * Decrease for less RAM usage. larger = better. */
         config.replanning().setMaxAgentPlanMemorySize( 5 );
 
-        /* Plan removal. In default: plan with the lowest score is removed, if number of plans is too large.
-        * But genetic algorithms do not maintaining diversity; "we end up with n copies of best plan". */
+        /* Plan removal. In default: Plan with the lowest score is removed, if number of plans is too large.
+        * To remember: Genetic algorithms alone do not maintain diversity is these populations; "we end up with n copies of best plan". */
         config.replanning().setPlanSelectorForRemoval( DefaultPlanStrategiesModule.DefaultPlansRemover.WorstPlanSelector.toString());
 
         /* Innovation switch-off.
@@ -129,19 +132,32 @@ public class MyCleanTestTun {
             ReplanningConfigGroup.StrategySettings stratSets = new ReplanningConfigGroup.StrategySettings();
             stratSets.setWeight( .1 );
             stratSets.setStrategyName( DefaultPlanStrategiesModule.DefaultStrategy.SubtourModeChoice );
-            // SubtourModeChoice ensure mass conservation for relevant modes (car, bike)
+            /* SubtourModeChoice ensure mass conservation for relevant modes (car, bike) */
             config.replanning().addStrategySettings( stratSets );
         }
-
-
-
 
         // --------------------------------------------------------------------
         // --- CONFIG --- ROUTING ---------------------------------------------
         // --------------------------------------------------------------------
         /* For realistic movement from/ towards activities/ modes (subnetwork of correct type/ mode)
-        Should be default (always in use) for multimodal networks. */
+        * Should be default (always in use) for multimodal networks. Distorts equil scenario. */
         config.routing().setAccessEgressType( RoutingConfigGroup.AccessEgressType.accessEgressModeToLink );
+
+        {
+            RoutingConfigGroup.TeleportedModeParams params = new RoutingConfigGroup.TeleportedModeParams( MY_MODE );
+            params.setTeleportedModeSpeed( 35. / 3.6 ) ;
+            config.routing().addTeleportedModeParams( params );
+        }
+        {
+            RoutingConfigGroup.TeleportedModeParams params = new RoutingConfigGroup.TeleportedModeParams( TransportMode.walk );
+            params.setTeleportedModeSpeed( 3. / 3.6 ) ;
+            config.routing().addTeleportedModeParams( params );
+        }
+        {
+            RoutingConfigGroup.TeleportedModeParams params = new RoutingConfigGroup.TeleportedModeParams( TransportMode.bike );
+            params.setTeleportedModeSpeed( 20. / 3.6 ) ;
+            config.routing().addTeleportedModeParams( params );
+        }
 
         // --------------------------------------------------------------------
         // --- CONFIG --- SCORING ---------------------------------------------
@@ -150,6 +166,10 @@ public class MyCleanTestTun {
         * Averages the scores everytime a plan is used.
         * Should be used with innovation switch-off (see REPLANNING). */
         config.scoring().setFractionOfIterationsToStartScoreMSA( 0.8 );
+
+        ScoringConfigGroup.ModeParams params = new ScoringConfigGroup.ModeParams( MY_MODE );
+        params.setMarginalUtilityOfTraveling( 0. ) ;
+        config.scoring().addModeParams( params );
 
         // --------------------------------------------------------------------
         // --- CONFIG --- QSIM ------------------------------------------------
@@ -166,7 +186,8 @@ public class MyCleanTestTun {
         * exception   ~ Simulation will break
         * wait        ~ (Example:) for the one available, but busy, car of household.
         * teleport    ~ Do not enforce particle consistency. */
-        config.qsim().setVehicleBehavior( QSimConfigGroup.VehicleBehavior.wait ) ;
+        /* here "wait" lets agents get stuck waiting in sim */
+        config.qsim().setVehicleBehavior( QSimConfigGroup.VehicleBehavior.teleport ) ;
 
         /* How do vehicles interact?
         * FIFO      ~ "first in, first out": vehicles leaving in the same order of entering the link
@@ -179,6 +200,20 @@ public class MyCleanTestTun {
         // --- SCENARIO ------------------------------------------------------
         // -------------------------------------------------------------------
         /* Till here, we were building the config. */
+
+        OTFVisConfigGroup visConfig = ConfigUtils.addOrGetModule( config, OTFVisConfigGroup.GROUP_NAME, OTFVisConfigGroup.class ) ;
+        visConfig.setDrawTime( true ) ;
+        visConfig.setDrawNonMovingItems( true ) ;
+        visConfig.setAgentSize( 125 ) ;
+        visConfig.setLinkWidth( 10 ) ;
+        visConfig.setDrawTransitFacilityIds( false ) ;
+        visConfig.setDrawTransitFacilities( false ) ;
+
+        if ( args.length > 1 && args[1] != null ) {
+            ConfigUtils.loadConfig( config, args[1] );
+            // (this loads a second config file, if you want to insist on overriding the settings so far but don't want to touch the code.  kai, aug'16)
+        }
+
         Scenario scenario = ScenarioUtils.loadScenario( config ) ;
 
         /* Possibly modify scenario here (infrastructure: links, persons, plans) */
@@ -190,10 +225,15 @@ public class MyCleanTestTun {
 
         /* possibly modify controller here (how to control the program)
         * all possible modifications subsumed under the most important ones:
-        * addOverridingModule, addOverridingQSimModule */
-        //controler.addOverridingModule( new OTFVisLiveModule() ) ;
+        * addOverridingModule, addOverridingQSimModule.
+        * For OTFVis visualization after Java 16 add JVM arguments:
+        * --add-exports java.base/java.lang=ALL-UNNAMED
+        * --add-exports java.desktop/sun.awt=ALL-UNNAMED
+        * --add-exports java.desktop/sun.java2d=ALL-UNNAMED
+        * More Run > Modify ... > Modify Options >> Add VM Options */
+        controler.addOverridingModule( new OTFVisLiveModule() ) ;
         controler.addOverridingModule( new SimWrapperModule() ) ;
-        controler.run() ;
 
+        controler.run() ;
     }
 }

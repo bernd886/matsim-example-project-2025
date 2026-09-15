@@ -19,6 +19,7 @@ import org.matsim.examples.ExamplesUtils;
 import org.matsim.simwrapper.SimWrapperModule;
 import org.matsim.vehicles.VehicleType;
 import org.matsim.vehicles.VehiclesFactory;
+import org.matsim.vis.otfvis.OTFVisConfigGroup;
 
 import java.util.HashSet;
 
@@ -42,9 +43,19 @@ public class RunPedelecExample {
         config.controller().setOverwriteFileSetting( OutputDirectoryHierarchy.OverwriteFileSetting.deleteDirectoryIfExists ) ;
         config.controller().setLastIteration( 20 ) ;
 
+        /* possibly modify config here (first/ last iteration, learning functions, etc.) */
+
         // --------------------------------------------------------------------
         // --- CONFIG --- MODE CHOICE -----------------------------------------
         // --------------------------------------------------------------------
+        /* Configuring mode choice strategies.
+         * Modes for modeChoice: declaring available modes; preconfigured string constants.
+         * "The mode choice modules need to know which modes are in the system.
+         * There are four different places, where a different mode needs to be entered.
+         * Replanning:   must be able to say: use this mode.
+         * Router:       must be able to produce a route for this mode.
+         * Simulation:   must be able to process it.
+         * Scoring:      must be able to give it a score". */
         final var MY_MODE = "myMode" ;
         final var MY_SPEED = 200 / 3.6 ;
 
@@ -58,20 +69,32 @@ public class RunPedelecExample {
         // --------------------------------------------------------------------
         // --- CONFIG --- REPLANNING ------------------------------------------
         // --------------------------------------------------------------------
-        /* Plan innovation (or "strategy")
-         *
-         * innovation switch-off.
-         * no more innovation (mutation), only selection between existing plans.
+        /* Plan innovation (or "strategy") */
+
+        /* Plan memory size: default individual.
+         * Decrease for less RAM usage. larger = better. */
+        config.replanning().setMaxAgentPlanMemorySize( 5 );
+
+        /* Plan removal. In default: Plan with the lowest score is removed, if number of plans is too large.
+         * To remember: Genetic algorithms alone do not maintain diversity is these populations; "we end up with n copies of best plan". */
+        config.replanning().setPlanSelectorForRemoval( DefaultPlanStrategiesModule.DefaultPlansRemover.WorstPlanSelector.toString());
+
+        /* Innovation switch-off.
+         * No more innovation (mutation) at the end of sim.
+         * Only selection between existing plans.
          * Should be used with averaging scores (see SCORING). */
-        //config.replanning().setFractionOfIterationsToDisableInnovation( 0.8 );
+        config.replanning().setFractionOfIterationsToDisableInnovation( 0.8 );
 
         // --------------------------------------------------------------------
-        // --- CONFIG --- REPLANNING --- MODE CHANGE --------------------------
+        // --- CONFIG --- REPLANNING --- MUTATOR ------------------------------
         // --------------------------------------------------------------------
+        /* Adding new mutator strategy (innovative).
+         * "Changing the location (go shopping somewhere else) is a contrib." */
         {   /* Putting in a mode choice module. */
             ReplanningConfigGroup.StrategySettings params = new ReplanningConfigGroup.StrategySettings();
             params.setStrategyName( DefaultPlanStrategiesModule.DefaultStrategy.ChangeSingleTripMode ) ;
             params.setWeight( 1. ) ; // is high, to see effect of mode change
+            /* "ChangeSingleTripMode works better than ChangeTripMode" */
             config.replanning().addStrategySettings( params ) ;
         }
 
@@ -87,7 +110,11 @@ public class RunPedelecExample {
         // --------------------------------------------------------------------
         // --- CONFIG --- SCORING ---------------------------------------------
         // --------------------------------------------------------------------
-        //config.scoring().setFractionOfIterationsToStartScoreMSA( 0.8 );
+        /* Averaging for convergence of scores.
+         * Averages the scores everytime a plan is used.
+         * Should be used with innovation switch-off (see REPLANNING). */
+        config.scoring().setFractionOfIterationsToStartScoreMSA( 0.8 );
+
         {
             ScoringConfigGroup.ModeParams params = new ScoringConfigGroup.ModeParams( MY_MODE );
             params.setMarginalUtilityOfTraveling( 0. ) ;
@@ -107,6 +134,9 @@ public class RunPedelecExample {
         config.qsim().setFlowCapFactor( SAMPLESIZE ) ;
         config.qsim().setStorageCapFactor( SAMPLESIZE ) ;
 
+        config.qsim().setTrafficDynamics( QSimConfigGroup.TrafficDynamics.kinematicWaves ) ;
+        config.qsim().setSnapshotStyle( QSimConfigGroup.SnapshotStyle.kinematicWaves ) ;
+
         /* Let the "modes" be executed on the network.
          * To TELEPORT additional modes (on calculated routes), remove from "modes" or comment out. */
         config.qsim().setMainModes( modes ) ;
@@ -122,6 +152,7 @@ public class RunPedelecExample {
          * exception   ~ Simulation will break
          * wait        ~ (Example:) for the one available, but busy, car of household / bus.
          * teleport    ~ Do not enforce particle consistency. */
+        /* in "equil" "wait" lets agents get stuck waiting in sim */
         config.qsim().setVehicleBehavior( QSimConfigGroup.VehicleBehavior.teleport ) ;
 
         /* How do vehicles interact?
@@ -135,6 +166,15 @@ public class RunPedelecExample {
         // --- SCENARIO ------------------------------------------------------
         // -------------------------------------------------------------------
         /* Till here, we were building the config. */
+
+        OTFVisConfigGroup visConfig = ConfigUtils.addOrGetModule( config, OTFVisConfigGroup.GROUP_NAME, OTFVisConfigGroup.class ) ;
+        visConfig.setDrawTime( true ) ;
+        visConfig.setDrawNonMovingItems( true ) ;
+        visConfig.setAgentSize( 125 ) ;
+        visConfig.setLinkWidth( 10 ) ;
+        visConfig.setDrawTransitFacilityIds( false ) ;
+        visConfig.setDrawTransitFacilities( false ) ;
+
         Scenario scenario = ScenarioUtils.loadScenario( config ) ;
 
         /* Possibly modify scenario here (infrastructure: links, persons, plans) */
@@ -192,9 +232,14 @@ public class RunPedelecExample {
         // --------------------------------------------------------------------
         Controler controler = new Controler( scenario ) ;
 
-        /* possibly modify controller here (how to control the program)
-         * all possible modifications subsumed under the most important ones:
-         * addOverridingModule, addOverridingQSimModule */
+        /* Possibly modify controller here (how to control the program).
+         * All possible modifications subsumed under the most important ones:
+         * addOverridingModule, addOverridingQSimModule.
+         * For OTFVis visualization after Java 16 add JVM arguments:
+         * --add-exports java.base/java.lang=ALL-UNNAMED
+         * --add-exports java.desktop/sun.awt=ALL-UNNAMED
+         * --add-exports java.desktop/sun.java2d=ALL-UNNAMED
+         * More Run > Modify ... > Modify Options >> Add VM Options */
         //controler.addOverridingModule( new OTFVisLiveModule() ) ;
         controler.addOverridingModule( new SimWrapperModule() ) ;
         controler.run() ;
