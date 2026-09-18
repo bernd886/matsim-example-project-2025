@@ -41,7 +41,7 @@ public class MyRunMatsim {
 		// --------------------------------------------------------------------
 		Config config;
 		if ( args==null || args.length==0 || args[0]==null ){
-			config = ConfigUtils.loadConfig( "scenarios/equil/config.xml" ) ;
+			config = ConfigUtils.loadConfig( "scenarios/equil/multi_config.xml" ) ;
 		} else {
 			config = ConfigUtils.loadConfig( args ) ;
 		}
@@ -168,7 +168,7 @@ public class MyRunMatsim {
 		 * --add-exports java.desktop/sun.awt=ALL-UNNAMED
 		 * --add-exports java.desktop/sun.java2d=ALL-UNNAMED
 		 * More Run > Modify ... > Modify Options >> Add VM Options */
-		controler.addOverridingModule( new OTFVisLiveModule() ) ;
+		//controler.addOverridingModule( new OTFVisLiveModule() ) ;
 		controler.addOverridingModule( new SimWrapperModule() ) ;
 		controler.run() ;
 

@@ -121,9 +121,9 @@ public class MyRunTransitWithOtfvisExample {
          * ChangeExpBeta ~ faster + robust  */
         {
             ReplanningConfigGroup.StrategySettings stratSets = new ReplanningConfigGroup.StrategySettings();
-            stratSets.setWeight( .7 );
-            stratSets.setStrategyName( DefaultPlanStrategiesModule.DefaultSelector.ChangeExpBeta );
-            config.replanning().addStrategySettings( stratSets );
+            stratSets.setWeight( .7 ) ;
+            stratSets.setStrategyName( DefaultPlanStrategiesModule.DefaultSelector.ChangeExpBeta ) ;
+            config.replanning().addStrategySettings( stratSets ) ;
         }
 
         // --------------------------------------------------------------------
@@ -132,18 +132,20 @@ public class MyRunTransitWithOtfvisExample {
         /* Adding new mutator strategy (innovative).
          * "Changing the location (go shopping somewhere else) is a contrib." */
         {   /* Putting in a mode choice module. */
-            ReplanningConfigGroup.StrategySettings stratSets = new ReplanningConfigGroup.StrategySettings();
-            stratSets.setWeight( .2 );
-            stratSets.setStrategyName( DefaultPlanStrategiesModule.DefaultStrategy.ChangeSingleTripMode );
+            ReplanningConfigGroup.StrategySettings stratSets = new ReplanningConfigGroup.StrategySettings() ;
+            stratSets.setWeight( .2 ) ;
+            stratSets.setStrategyName( DefaultPlanStrategiesModule.DefaultStrategy.ChangeSingleTripMode ) ;
             /* "ChangeSingleTripMode works better than ChangeTripMode" */
-            config.replanning().addStrategySettings( stratSets );
+            config.replanning().addStrategySettings( stratSets ) ;
         }
-        {   /* Putting in a sub mode choice module. */
-            ReplanningConfigGroup.StrategySettings stratSets = new ReplanningConfigGroup.StrategySettings();
+        {   /* Putting in a sub mode choice module.
+             * SubtourModeChoice ensure mass conservation for relevant modes (car, bike).
+             * This strategy has a default setting for pt. To avoid errors in non-pt sims,
+             * edit subtourModeChoice(). */
+            ReplanningConfigGroup.StrategySettings stratSets = new ReplanningConfigGroup.StrategySettings() ;
             stratSets.setWeight( .1 );
-            stratSets.setStrategyName( DefaultPlanStrategiesModule.DefaultStrategy.SubtourModeChoice );
-            /* SubtourModeChoice ensure mass conservation for relevant modes (car, bike) */
-            config.replanning().addStrategySettings( stratSets );
+            stratSets.setStrategyName( DefaultPlanStrategiesModule.DefaultStrategy.SubtourModeChoice ) ;
+            config.replanning().addStrategySettings( stratSets ) ;
         }
 
         // --------------------------------------------------------------------
@@ -151,22 +153,22 @@ public class MyRunTransitWithOtfvisExample {
         // --------------------------------------------------------------------
         /* For realistic movement from/ towards activities/ modes (subnetwork of correct type/ mode)
          * Should be default (always in use) for multimodal networks. Distorts equil scenario. */
-        config.routing().setAccessEgressType( RoutingConfigGroup.AccessEgressType.accessEgressModeToLink );
+        config.routing().setAccessEgressType( RoutingConfigGroup.AccessEgressType.accessEgressModeToLink ) ;
 
         {
-            RoutingConfigGroup.TeleportedModeParams params = new RoutingConfigGroup.TeleportedModeParams( MY_MODE );
+            RoutingConfigGroup.TeleportedModeParams params = new RoutingConfigGroup.TeleportedModeParams( MY_MODE ) ;
             params.setTeleportedModeSpeed( 35. / 3.6 ) ;
-            config.routing().addTeleportedModeParams( params );
+            config.routing().addTeleportedModeParams( params ) ;
         }
         {
-            RoutingConfigGroup.TeleportedModeParams params = new RoutingConfigGroup.TeleportedModeParams( TransportMode.walk );
+            RoutingConfigGroup.TeleportedModeParams params = new RoutingConfigGroup.TeleportedModeParams( TransportMode.walk ) ;
             params.setTeleportedModeSpeed( 3. / 3.6 ) ;
-            config.routing().addTeleportedModeParams( params );
+            config.routing().addTeleportedModeParams( params ) ;
         }
         {
-            RoutingConfigGroup.TeleportedModeParams params = new RoutingConfigGroup.TeleportedModeParams( TransportMode.bike );
+            RoutingConfigGroup.TeleportedModeParams params = new RoutingConfigGroup.TeleportedModeParams( TransportMode.bike ) ;
             params.setTeleportedModeSpeed( 20. / 3.6 ) ;
-            config.routing().addTeleportedModeParams( params );
+            config.routing().addTeleportedModeParams( params ) ;
         }
 
         // --------------------------------------------------------------------
@@ -175,12 +177,12 @@ public class MyRunTransitWithOtfvisExample {
         /* Averaging for convergence of scores.
          * Averages the scores everytime a plan is used.
          * Should be used with innovation switch-off (see REPLANNING). */
-        config.scoring().setFractionOfIterationsToStartScoreMSA( 0.8 );
+        config.scoring().setFractionOfIterationsToStartScoreMSA( 0.8 ) ;
 
         {
-            ScoringConfigGroup.ModeParams params = new ScoringConfigGroup.ModeParams( MY_MODE );
+            ScoringConfigGroup.ModeParams params = new ScoringConfigGroup.ModeParams( MY_MODE ) ;
             params.setMarginalUtilityOfTraveling( 0. ) ;
-            config.scoring().addModeParams( params );
+            config.scoring().addModeParams( params ) ;
         }
 
         // --------------------------------------------------------------------
