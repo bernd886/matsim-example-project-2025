@@ -26,15 +26,21 @@ For teleported mode WITH routing, see comment in RunPedelecExample
 public class RunPedelecExampleTeleport {
 
     public static void main( String[] args ) {
-
+        // --------------------------------------------------------------------
+        // --- CONFIG ---------------------------------------------------------
+        // --------------------------------------------------------------------
         var url = IOUtils.extendUrl( ExamplesUtils.getTestScenarioURL( "equil" ), "config.xml" );
         Config config = ConfigUtils.loadConfig( url );
         config.controller().setOverwriteFileSetting( OutputDirectoryHierarchy.OverwriteFileSetting.deleteDirectoryIfExists );
 
         config.controller().setLastIteration( 1 );
 
-        // ### Plans innovation (or "strategy") ###
+        /* possibly modify config here (first/ last iteration, learning functions, etc.) */
 
+        // --------------------------------------------------------------------
+        // --- CONFIG --- REPLANNING --- MUTATOR ------------------------------
+        // --------------------------------------------------------------------
+		/* Adding new mutator strategy (innovative). */
         {
             // Putting in a mode choice module
             ReplanningConfigGroup.StrategySettings params = new ReplanningConfigGroup.StrategySettings();
@@ -43,22 +49,33 @@ public class RunPedelecExampleTeleport {
             config.replanning().addStrategySettings( params );
         }
 
-        // Configuring mode choice module
+        // --------------------------------------------------------------------
+        // --- CONFIG --- MODE CHOICE -----------------------------------------
+        // --------------------------------------------------------------------
+        /* Configuring mode choice strategies.
+         * Modes for modeChoice: declaring available modes; preconfigured string constants.
+         * "The mode choice modules need to know which modes are in the system.
+         * There are four different places, where a different mode needs to be entered.
+         * Replanning:   must be able to say: use this mode.
+         * Router:       must be able to produce a route for this mode.
+         * Simulation:   must be able to process it.
+         * Scoring:      must be able to give it a score". */
         final String[] modes = { "car", "pedelec" };
         config.changeMode().setModes( modes );
 
-        // ### Routing ###
-
-        // When implementing new modes, we first are using teleport
-        // When adding teleportation mode, pre-existing ones are removed.
-        // Like constructors: overriding the default, deletes all predefined.
-        // clear for no errors
+        // --------------------------------------------------------------------
+        // --- CONFIG --- ROUTING ---------------------------------------------
+        // --------------------------------------------------------------------
+        /* Execute modes on the network.
+        * When implementing new modes, we first are using teleport.
+        * When adding teleportation mode, pre-existing ones are removed.
+        * Like constructors: overriding the default, deletes all predefined.
+        * Clear for no errors. */
         config.routing().clearTeleportedModeParams();
         {
             RoutingConfigGroup.TeleportedModeParams params = new RoutingConfigGroup.TeleportedModeParams( "pedelec" );
             params.setTeleportedModeSpeed( 15. / 3.6 );
             params.setBeelineDistanceFactor( 1.3 );
-
             // More details with freespeed travel time on network (multiplied by X)
             // When used, speed and distanceFactor have to be null
             params.setTeleportedModeFreespeedFactor( null );
@@ -71,7 +88,9 @@ public class RunPedelecExampleTeleport {
             config.routing().addTeleportedModeParams( params );
         }
 
-        // ### Scoring ###
+        // --------------------------------------------------------------------
+        // --- CONFIG --- SCORING ---------------------------------------------
+        // --------------------------------------------------------------------
         {
             ScoringConfigGroup.ModeParams params = new ScoringConfigGroup.ModeParams( "pedelec" );
             params.setMarginalUtilityOfTraveling( 0. );
@@ -83,8 +102,19 @@ public class RunPedelecExampleTeleport {
             config.scoring().addModeParams( params );
         }
 
+        // -------------------------------------------------------------------
+        // --- SCENARIO ------------------------------------------------------
+        // -------------------------------------------------------------------
+        /* Till here, we were building the config. */
         Scenario scenario = ScenarioUtils.loadScenario( config );
-        Controler controler = new Controler( scenario );
+
+        /* Possibly modify scenario here (infrastructure: links, persons, plans) */
+
+        // --------------------------------------------------------------------
+        // --- CONTROLER ------------------------------------------------------
+        // --------------------------------------------------------------------
+        Controler controler = new Controler( scenario ) ;
+        /* Possibly modify controller here (how to control the program). */
         controler.run();
 
 

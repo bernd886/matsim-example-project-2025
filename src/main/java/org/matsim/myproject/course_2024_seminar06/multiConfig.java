@@ -31,7 +31,7 @@ public class multiConfig {
 
         config.controller().setOverwriteFileSetting( OutputDirectoryHierarchy.OverwriteFileSetting.deleteDirectoryIfExists ) ;
 
-        config.controller().setLastIteration( 3 ) ;
+        config.controller().setLastIteration( 30 ) ;
 
         // --------------------------------------------------------------------
         // --- CONFIG --- MODE CHOICE -----------------------------------------
@@ -124,7 +124,7 @@ public class multiConfig {
         // --- CONTROLER ------------------------------------------------------
         // --------------------------------------------------------------------
 
-        Controler controler = new Controler(  scenario ) ;
+        Controler controler = new Controler( scenario ) ;
 
         controler.run() ;
     }
