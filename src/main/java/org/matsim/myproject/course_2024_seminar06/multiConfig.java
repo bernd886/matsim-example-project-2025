@@ -30,7 +30,7 @@ public class multiConfig {
         Config config = ConfigUtils.loadConfig( "scenarios/equil/multi_config.xml" ) ;
 
         config.controller().setOverwriteFileSetting( OutputDirectoryHierarchy.OverwriteFileSetting.deleteDirectoryIfExists ) ;
-
+        /* at least run two iterations, so that possible replanning kicks in and all of code was executed once. */
         config.controller().setLastIteration( 30 ) ;
 
         // --------------------------------------------------------------------

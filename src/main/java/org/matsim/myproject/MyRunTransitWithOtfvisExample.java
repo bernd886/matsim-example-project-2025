@@ -62,6 +62,7 @@ public class MyRunTransitWithOtfvisExample {
 
         config.controller().setOutputDirectory( "output" ) ;
         config.controller().setOverwriteFileSetting( OutputDirectoryHierarchy.OverwriteFileSetting.deleteDirectoryIfExists ) ;
+        /* at least run two iterations, so that possible replanning kicks in and all of code was executed once. */
         config.controller().setLastIteration( 30 ) ;
 
         /* possibly modify config here (first/ last iteration, learning functions, etc.) */
